@@ -8,9 +8,10 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Configuration from .env
-SECRET_KEY = os.getenv("SECRET_KEY")
-ALGORITHM = os.getenv("ALGORITHM")
-ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
+SECRET_KEY = os.getenv("SECRET_KEY", "default_secret_key_change_me_in_production")
+ALGORITHM = os.getenv("ALGORITHM", "HS256")
+# Provide a default string "30" before converting to int to avoid NoneType error
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
 
 # Password hashing setup
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")

@@ -6,6 +6,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 MONGODB_URL = os.getenv("MONGODB_URL")
+if not MONGODB_URL:
+    print("WARNING: MONGODB_URL not found in environment variables!")
 DATABASE_NAME = os.getenv("DATABASE_NAME", "arcade_db")
 
 # Function to handle special characters in MongoDB URL
