@@ -4,17 +4,17 @@
 .env.*.local
 
 # Backend
-arcade_api-main/venv/
-arcade_api-main/__pycache__/
-arcade_api-main/*.pyc
-arcade_api-main/sql_app.db
-arcade_api-main/.pytest_cache/
+backend/venv/
+backend/__pycache__/
+backend/*.pyc
+backend/sql_app.db
+backend/.pytest_cache/
 
 # Frontend
-RFID-main/node_modules/
-RFID-main/dist/
-RFID-main/dist-ssr/
-RFID-main/*.local
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+frontend/*.local
 
 # Logs
 *.log
