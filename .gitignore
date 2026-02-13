@@ -1,0 +1,27 @@
+# Environments
+.env
+.env.local
+.env.*.local
+
+# Backend
+arcade_api-main/venv/
+arcade_api-main/__pycache__/
+arcade_api-main/*.pyc
+arcade_api-main/sql_app.db
+arcade_api-main/.pytest_cache/
+
+# Frontend
+RFID-main/node_modules/
+RFID-main/dist/
+RFID-main/dist-ssr/
+RFID-main/*.local
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS
+.DS_Store
+Thumbs.db
