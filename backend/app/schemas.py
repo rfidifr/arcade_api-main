@@ -51,3 +51,8 @@ class MachineResponse(BaseModel):
     name: str
     cost_per_play: float
     arcade_id: str
+    
+class MachineCreate(BaseModel):
+    id:str
+    name:str
+    cost_per_play:float
