@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from .. import models, schemas, security, database
 from ..dependencies import verify_admin
+from ..dependencies import get_current_user
+from ..security import create_secretkey
 
 router = APIRouter(
     prefix="/admin",
@@ -51,3 +53,37 @@ async def create_manager(
     
     await db[models.COLLECTION_USERS].insert_one(new_user)
     return {"message": f"Manager {username} created for arcade {arcade_id}"}
+
+@router.post("/new_machine", response_model=schemas.MachineResponse)
+async def new_machine(
+    machine_data: schemas.MachineCreate,
+    secret_key: str= Depends(create_secretkey),
+    db= Depends(database.get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    # Security: Only manager and administrator can create machines
+    if current_user.role not in ["manager",'administrator']:
+        raise HTTPException(status_code=403, detail="Permission denied")
+
+    # Create new machine linked to manage's arcade
+    arcade_id = current_user.get("arcade_id")
+    new_machine_dict = {
+        **machine_data.model_dump(),
+        "arcade_id":arcade_id,
+        "secret_key": secret_key,
+        "status": "ACTIVE",
+        "created_at": datetime.utcnow()
+    }
+    await db[models.COLLECTION_CARDS].insert_one(new_machine_dict)
+    
+    # Log the creation
+    log = {
+        "type": "INFO",
+        "message": f"New card registered: {machine_data.id}",
+        "source": "Manager Ops",
+        "timestamp": datetime.utcnow(),
+        "arcade_id": arcade_id
+    }
+    await db[models.COLLECTION_LOGS].insert_one(log)
+    
+    return new_machine_dict
