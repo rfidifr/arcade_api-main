@@ -74,6 +74,7 @@ async def new_machine(
         "status": "ACTIVE",
         #"created_at": datetime.utcnow()
     }
+    print(new_machine_dict)
     await db[models.COLLECTION_CARDS].insert_one(new_machine_dict)
     
     # Log the creation
