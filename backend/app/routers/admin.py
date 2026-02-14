@@ -66,7 +66,7 @@ async def new_machine(
         raise HTTPException(status_code=403, detail="Permission denied")
 
     # Create new machine linked to manage's arcade
-    arcade_id = current_user.get("arcade_id")
+    arcade_id = current_user.get("arcade_id") or "SYSTEM_ARCADE"
     new_machine_dict = {
         **machine_data.model_dump(),
         "arcade_id":arcade_id,
