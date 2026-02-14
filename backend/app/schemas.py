@@ -40,3 +40,8 @@ class TokenData(BaseModel):
 class RefundRequest(BaseModel):
     card_id: str
     reason: Optional[str] = "Customer request"    
+
+class MachineCreate(BaseModel):
+    id:str
+    name:str
+    cost_per_play:float
