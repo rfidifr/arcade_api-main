@@ -79,7 +79,7 @@ async def new_machine(
     # Log the creation
     log = {
         "type": "INFO",
-        "message": f"New card registered: {machine_data.id}",
+        "message": f"New machine registered: {machine_data.id}",
         "source": "Manager Ops",
        # "timestamp": datetime.utcnow(),
         "arcade_id": arcade_id
