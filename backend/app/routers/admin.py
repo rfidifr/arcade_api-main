@@ -62,7 +62,7 @@ async def new_machine(
     current_user=Depends(get_current_user)
 ):
     # Security: Only manager and administrator can create machines
-    if current_user.get("role") not in ["manager",'administrator']:
+    if current_user.get("role") not in ["manager",'admin']:
         raise HTTPException(status_code=403, detail="Permission denied")
 
     # Create new machine linked to manage's arcade
