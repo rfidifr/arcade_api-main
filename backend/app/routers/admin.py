@@ -72,7 +72,7 @@ async def new_machine(
         "arcade_id":arcade_id,
         "secret_key": secret_key,
         "status": "ACTIVE",
-        "created_at": datetime.utcnow()
+        #"created_at": datetime.utcnow()
     }
     await db[models.COLLECTION_CARDS].insert_one(new_machine_dict)
     
@@ -81,7 +81,7 @@ async def new_machine(
         "type": "INFO",
         "message": f"New card registered: {machine_data.id}",
         "source": "Manager Ops",
-        "timestamp": datetime.utcnow(),
+       # "timestamp": datetime.utcnow(),
         "arcade_id": arcade_id
     }
     await db[models.COLLECTION_LOGS].insert_one(log)
