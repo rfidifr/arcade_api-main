@@ -59,7 +59,9 @@ async def seed_data():
     cards = [
         {"card_id": "CARD-8832", "balance": 450.0, "status": "ACTIVE", "arcade_id": "ARC_DLH_01", "issued_to": "Guest #8832"},
         {"card_id": "CARD-9941", "balance": 1200.0, "status": "ACTIVE", "arcade_id": "ARC_DLH_01", "issued_to": "Guest #9941"},
-        {"card_id": "CARD-1223", "balance": 0.0, "status": "BLOCKED", "arcade_id": "ARC_DLH_01", "issued_to": "Reported Lost"}
+        {"card_id": "CARD-1223", "balance": 0.0, "status": "BLOCKED", "arcade_id": "ARC_DLH_01", "issued_to": "Reported Lost"},
+        {"card_id": "81B4D605", "balance": 1000000.0, "status": "ACTIVE", "arcade_id": "ARC_DLH_01", "issued_to": "MANSI"},
+        {"card_id": "DBA66E05", "balance": 1000000.0, "status": "ACTIVE", "arcade_id": "ARC_DLH_01", "issued_to": "MANSI"}
     ]
     await db[COLLECTION_CARDS].insert_many(cards)
     print("Inserted Cards")
