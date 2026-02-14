@@ -59,7 +59,7 @@ async def new_machine(
     machine_data: schemas.MachineCreate,
     secret_key: str= Depends(create_secretkey),
     db= Depends(database.get_db),
-    current_user:Depends(get_current_user)
+    current_user=Depends(get_current_user)
 ):
     # Security: Only manager and administrator can create machines
     if current_user.role not in ["manager",'administrator']:
