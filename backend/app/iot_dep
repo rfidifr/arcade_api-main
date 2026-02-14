@@ -2,20 +2,16 @@ import hmac
 import hashlib
 import time
 from fastapi import Request, HTTPException, status, Depends
-from sqlalchemy.orm import Session
-from app import models
+from bson import ObjectId
 from app.database import get_db
-from .dependencies import get_current_user
 
 ALLOWED_TIME_DRIFT = 3000  # seconds
 
-
-async def verify_machine(  # Make it async to properly await request.json()
+async def verify_machine(
     request: Request,
-    db: Session = Depends(get_db),
-    #current_user: models.User = Depends(get_current_user)
+    db = Depends(get_db),
 ):
-    #  Extract headers
+    # 1️⃣ Extract headers
     machine_id = request.headers.get("X-Machine-Id")
     timestamp = request.headers.get("X-Timestamp")
     signature = request.headers.get("X-Signature")
@@ -26,7 +22,7 @@ async def verify_machine(  # Make it async to properly await request.json()
             detail="Missing authentication headers"
         )
 
-    #  Validate timestamp format
+    # 2️⃣ Validate timestamp format
     try:
         timestamp_int = int(timestamp)
     except ValueError:
@@ -35,7 +31,7 @@ async def verify_machine(  # Make it async to properly await request.json()
             detail="Invalid timestamp"
         )
 
-    #  Prevent replay attacks
+    # 3️⃣ Prevent replay attacks
     current_time = int(time.time())
     if abs(current_time - timestamp_int) > ALLOWED_TIME_DRIFT:
         raise HTTPException(
@@ -43,22 +39,21 @@ async def verify_machine(  # Make it async to properly await request.json()
             detail="Request expired"
         )
 
-    #  Fetch machine from DB 
-    machine = db.query(models.Machine).filter(
-        models.Machine.id == machine_id  # Changed from .id to .machine_id
-        #models.Machine.arcade_id == current_user.arcade_id,
-    ).first()
+    # 4️⃣ Fetch machine from MongoDB
+    # CRITICAL: Use machine_id field, not _id
+    machine = db.machines.find_one({"machine_id": machine_id})
 
     if not machine:
+        print(f"❌ Machine not found: {machine_id}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid machine" 
         )
 
-    # Get card_id from body 
+    # 5️⃣ Get card_id from body
     try:
-        data = await request.json()  # This is already the dict, not nested
-        card_id = data.get("card_id")  # Get card_id directly from data
+        data = await request.json()
+        card_id = data.get("card_id")
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
@@ -71,16 +66,17 @@ async def verify_machine(  # Make it async to properly await request.json()
             detail="Missing card_id"
         )
 
-    #  Recreate message
+    # 6️⃣ Recreate message - IMPORTANT: Use timestamp as string!
     message = f"{machine_id}{card_id}{timestamp}"
 
-    #  Recalculate HMAC
+    # 7️⃣ Recalculate HMAC
     expected_signature = hmac.new(
-        machine.secret_key.encode(),
+        machine["secret_key"].encode(),  # MongoDB returns dict, use bracket notation
         message.encode(),
         hashlib.sha256
     ).hexdigest()
 
+    # 🐛 DEBUG LOGGING
     print("=" * 50)
     print("DEBUG SIGNATURE VERIFICATION")
     print("=" * 50)
@@ -88,21 +84,20 @@ async def verify_machine(  # Make it async to properly await request.json()
     print(f"Card ID (body): {card_id}")
     print(f"Timestamp (header): {timestamp}")
     print(f"Timestamp type: {type(timestamp)}")
-    print(f"Secret Key (DB): {machine.secret_key}")
+    print(f"Secret Key (DB): {machine['secret_key']}")
     print(f"Message: {message}")
     print(f"Message bytes: {message.encode()}")
     print(f"Received signature: {signature}")
     print(f"Expected signature: {expected_signature}")
+    print(f"Signatures match: {hmac.compare_digest(expected_signature, signature)}")
     print("=" * 50)
 
-    #  comparison
+    # 8️⃣ Constant-time comparison
     if not hmac.compare_digest(expected_signature, signature):
-        print(signature)
-        print(expected_signature)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid signature"
         )
 
-    
+    # 9️⃣ Machine verified successfully
     return machine
